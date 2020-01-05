@@ -10,7 +10,7 @@ const yargs = require('yargs')
 const ConnectionParameters = require('pg/lib/connection-parameters')
 const { default: migrationRunner, Migration } = require('../dist')
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', err => {
   console.error(err)
   process.exit(1)
 })
@@ -288,20 +288,19 @@ function readJson(json) {
     DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : process.env[json[databaseUrlVarArg]]
     tsconfigPath = typeof tsconfigPath !== 'undefined' ? tsconfigPath : json[tsconfigArg]
     SKIP_META_SAVE = typeof SKIP_META_SAVE !== 'undefined' ? SKIP_META_SAVE : json[skipMetaSaveArg]
-    if (json.url) {
-      DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : json.url
-    } else if (json.host || json.port || json.name || json.database) {
-      DB_CONNECTION =
-        typeof DB_CONNECTION !== 'undefined'
-          ? DB_CONNECTION
-          : {
-              user: json.user,
-              host: json.host || 'localhost',
-              database: json.name || json.database,
-              password: json.password,
-              port: json.port || 5432,
-              ssl: json.ssl,
-            }
+    // ignore json config if there is DB_URL env var
+    if (!DB_CONNECTION) {
+      if (json.url) {
+        DB_CONNECTION = json.url
+      } else if (json.host || json.port || json.name || json.database) {
+        DB_CONNECTION = {
+          user: json.user,
+          host: json.host || 'localhost',
+          database: json.name || json.database,
+          password: json.password,
+          port: json.port || 5432,
+        }
+      }
     }
   } else {
     DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : json
@@ -363,11 +362,11 @@ if (action === 'create') {
           ignorePattern: IGNORE_PATTERN,
         }),
   })
-    .then((migrationPath) => {
+    .then(migrationPath => {
       console.log(util.format('Created migration -- %s', migrationPath))
       process.exit(0)
     })
-    .catch((err) => {
+    .catch(err => {
       console.error(err)
       process.exit(1)
     })
@@ -448,7 +447,7 @@ if (action === 'create') {
       console.log('Migrations complete!')
       process.exit(0)
     })
-    .catch((err) => {
+    .catch(err => {
       console.error(err)
       process.exit(1)
     })
