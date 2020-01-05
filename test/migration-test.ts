@@ -2,7 +2,7 @@
 import sinon, { SinonSpy } from 'sinon'
 import { expect } from 'chai'
 import { RunnerOption, Logger } from '../src/types'
-import { Migration, getTimestamp } from '../src/migration'
+import { Migration, getTimestamp, loadMigrationFiles } from '../src/migration'
 import { DBConnection } from '../src/db'
 
 const callbackMigration = '1414549381268_names.js'
@@ -108,6 +108,14 @@ describe('lib/migration', () => {
         expect(queryMock.getCall(1).args[0]).to.include('DROP TABLE')
         expect(queryMock.getCall(2).args[0]).to.include(`DELETE FROM "public"."${migrationsTable}"`)
         expect(queryMock.getCall(3).args[0]).to.equal('COMMIT;')
+      })
+    })
+  })
+
+  describe('loadMigrationFiles', () => {
+    it('loads all migrations (including subfolders)', () => {
+      return loadMigrationFiles('./test/migrations').then(files => {
+        expect(files.length).to.equal(82)
       })
     })
   })

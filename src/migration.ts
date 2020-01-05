@@ -9,20 +9,30 @@
 import fs from 'fs'
 import mkdirp from 'mkdirp'
 import path from 'path'
+import { flattenDeep } from 'lodash'
 import { DBConnection } from './db'
 import MigrationBuilder from './migration-builder'
 import { MigrationAction, MigrationBuilderActions, MigrationDirection, RunnerOption, Logger } from './types'
 import { getMigrationTableSchema } from './utils'
 import { ColumnDefinitions } from './operations/tablesTypes'
 
-const { readdir } = fs.promises
+const { readdir, lstat } = fs.promises
 
 const SEPARATOR = '_'
 
 export const loadMigrationFiles = async (dir: string, ignorePattern?: string) => {
   const dirContent = await readdir(`${dir}/`, { withFileTypes: true })
-  const files = dirContent
-    .map((file) => (file.isFile() || file.isSymbolicLink() ? file.name : null))
+  const files: string[] = flattenDeep(
+    await Promise.all(
+      dirContent.map(async file => {
+        const stats = await lstat(`${dir}/${file}`)
+        if (stats.isDirectory()) {
+          return loadMigrationFiles(`${dir}/${file}`, ignorePattern)
+        }
+        return stats.isFile() || file.isSymbolicLink() ? [file.name] : []
+      }),
+    ),
+  )
     .filter((file): file is string => Boolean(file))
     .sort()
   const filter = new RegExp(`^(${ignorePattern})$`) // eslint-disable-line security/detect-non-literal-regexp
