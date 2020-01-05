@@ -1,13 +1,6 @@
-# node-pg-migrate
+# node-pg-migrate-custom
 
-[![Dependency Status](https://img.shields.io/david/salsita/node-pg-migrate.svg)](https://david-dm.org/salsita/node-pg-migrate)
-[![devDependency Status](https://img.shields.io/david/dev/salsita/node-pg-migrate.svg)](https://david-dm.org/salsita/node-pg-migrate?type=dev)
-[![NPM version](https://img.shields.io/npm/v/node-pg-migrate.svg)](https://www.npmjs.com/package/node-pg-migrate)
-![Downloads](https://img.shields.io/npm/dm/node-pg-migrate.svg?style=flat)
-![Licence](https://img.shields.io/npm/l/node-pg-migrate.svg?style=flat)
-[![Known Vulnerabilities](https://snyk.io/test/github/salsita/node-pg-migrate/badge.svg)](https://snyk.io/test/github/salsita/node-pg-migrate)
-[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com/)
-[![CircleCI](https://img.shields.io/circleci/project/github/salsita/node-pg-migrate.svg)](https://circleci.com/gh/salsita/workflows/node-pg-migrate)
+A slightly extended version of original node-pg-migrate. Two changes in the original codebase only: prioritising DATABASE_URL env key over JSON config and add a special flag to migration config to skip tracking applied migrations (extremely handy for the migration of stored functions).
 
 Node.js database migration management built exclusively for postgres. (But can also be used for other DBs conforming to SQL standard - e.g. [CockroachDB](https://github.com/cockroachdb/cockroach).)
 Started by [Theo Ephraim](https://github.com/theoephraim/), now maintained by [Salsita Software](https://www.salsitasoft.com/).
