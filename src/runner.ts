@@ -101,6 +101,7 @@ const ensureMigrationsTable = async (db: DBConnection, options: RunnerOption): P
 }
 
 const getRunMigrations = async (db: DBConnection, options: RunnerOption) => {
+  if (options.skipMetaSave) return []
   const schema = getMigrationTableSchema(options)
   const { migrationsTable } = options
   const fullTableName = createSchemalize(

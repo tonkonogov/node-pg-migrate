@@ -209,7 +209,9 @@ export class Migration implements RunMigration {
 
     const sqlSteps = pgm.getSqlSteps()
 
-    sqlSteps.push(this._getMarkAsRun(action))
+    if (!this.options.skipMetaSave) {
+      sqlSteps.push(this._getMarkAsRun(action))
+    }
 
     if (!this.options.singleTransaction && pgm.isUsingTransaction()) {
       // if not in singleTransaction mode we need to create our own transaction

@@ -213,6 +213,7 @@ export interface RunnerOptionConfig {
   createSchema?: boolean
   createMigrationsSchema?: boolean
   singleTransaction?: boolean
+  skipMetaSave?: boolean
   noLock?: boolean
   fake?: boolean
   decamelize?: boolean

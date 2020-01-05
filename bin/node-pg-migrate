@@ -29,6 +29,7 @@ const databaseUrlVarArg = 'database-url-var'
 const migrationsDirArg = 'migrations-dir'
 const migrationsTableArg = 'migrations-table'
 const migrationsSchemaArg = 'migrations-schema'
+const skipMetaSaveArg = 'skip-meta-save'
 const createMigrationsSchemaArg = 'create-migrations-schema'
 const migrationFileLanguageArg = 'migration-file-language'
 const migrationFilenameFormatArg = 'migration-filename-format'
@@ -177,6 +178,12 @@ const { argv } = yargs
     type: 'boolean',
   })
 
+  .option(skipMetaSaveArg, {
+    default: false,
+    describe: 'Runs all migrations without any state checking/update',
+    type: 'boolean',
+  })
+
   .option(lockArg, {
     default: true,
     describe: 'When false, disables locking mechanism and checks',
@@ -228,6 +235,7 @@ let TEMPLATE_FILE_NAME = argv[templateFileNameArg]
 let CHECK_ORDER = argv[checkOrderArg]
 let VERBOSE = argv[verboseArg]
 let DECAMELIZE = argv[decamelizeArg]
+let SKIP_META_SAVE = argv[skipMetaSaveArg]
 let tsconfigPath = argv[tsconfigArg]
 
 function readTsconfig() {
@@ -279,6 +287,7 @@ function readJson(json) {
     DECAMELIZE = typeof DECAMELIZE !== 'undefined' ? DECAMELIZE : json[decamelizeArg]
     DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : process.env[json[databaseUrlVarArg]]
     tsconfigPath = typeof tsconfigPath !== 'undefined' ? tsconfigPath : json[tsconfigArg]
+    SKIP_META_SAVE = typeof SKIP_META_SAVE !== 'undefined' ? SKIP_META_SAVE : json[skipMetaSaveArg]
     if (json.url) {
       DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : json.url
     } else if (json.host || json.port || json.name || json.database) {
@@ -422,6 +431,7 @@ if (action === 'create') {
       file: migrationName,
       checkOrder: CHECK_ORDER,
       verbose: VERBOSE,
+      skipMetaSave: SKIP_META_SAVE,
       direction,
       singleTransaction,
       noLock,

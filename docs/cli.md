@@ -76,6 +76,7 @@ You can adjust defaults by passing arguments to `node-pg-migrate`:
 - `check-order` - Check order of migrations before running them (defaults to `true`, to switch it off supply `--no-check-order` on the command line).
   (There should be no migration with timestamp lesser than last run migration.)
 - `single-transaction` - Combines all pending migrations into a single transaction so that if any migration fails, all will be rolled back (defaults to `true`, to switch it off supply `--no-single-transaction` on the command line).
+- `skip-meta-save` - Skip saving meta information about transactions (for stateless migrations)
 - `no-lock` - Disables locking mechanism and checks (useful for DBs which does not support SQL commands used for [locking](migrations.md#locking))
 - `fake` - Mark migrations as run without actually performing them (use with caution!)
 - `decamelize` - Runs [`decamelize`](https://github.com/sindresorhus/decamelize) on table/column/etc. names
