@@ -9,7 +9,7 @@
 import fs from 'fs'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import { flattenDeep } from 'lodash'
+import _ from 'lodash'
 import { DBConnection } from './db'
 import MigrationBuilder from './migration-builder'
 import { MigrationAction, MigrationBuilderActions, MigrationDirection, RunnerOption, Logger } from './types'
@@ -20,23 +20,37 @@ const { readdir, lstat } = fs.promises
 
 const SEPARATOR = '_'
 
-export const loadMigrationFiles = async (dir: string, ignorePattern?: string) => {
-  const dirContent = await readdir(`${dir}/`, { withFileTypes: true })
-  const files: string[] = flattenDeep(
+type MigrationFile = {
+  name: string
+  path: string
+}
+
+export const loadMigrationFiles = async (
+  dir: string,
+  ignorePattern?: string,
+  subDir?: string,
+): Promise<MigrationFile[]> => {
+  const fullDir = subDir ? `${dir}/${subDir}/` : `${dir}/`
+  const dirContent = await readdir(fullDir, { withFileTypes: true })
+
+  const files = _(
     await Promise.all(
       dirContent.map(async file => {
-        const stats = await lstat(`${dir}/${file}`)
+        const stats = await lstat(`${fullDir}/${file}`)
+        const filePath = subDir ? `${subDir}/${file}` : file
         if (stats.isDirectory()) {
-          return loadMigrationFiles(`${dir}/${file}`, ignorePattern)
+          return loadMigrationFiles(dir, ignorePattern, filePath)
         }
-        return stats.isFile() || file.isSymbolicLink() ? [file.name] : []
+        return stats.isFile() ? [{ name: file, path: filePath }] : []
       }),
     ),
   )
-    .filter((file): file is string => Boolean(file))
-    .sort()
+    .flattenDeep()
+    .sortBy(['name'])
+    .value()
+
   const filter = new RegExp(`^(${ignorePattern})$`) // eslint-disable-line security/detect-non-literal-regexp
-  return ignorePattern === undefined ? files : files.filter((i) => !filter.test(i))
+  return ignorePattern === undefined ? files : files.filter(i => !filter.test(i.name))
 }
 
 const getSuffixFromFileName = (fileName: string) => path.extname(fileName).substr(1)
@@ -44,7 +58,7 @@ const getSuffixFromFileName = (fileName: string) => path.extname(fileName).subst
 const getLastSuffix = async (dir: string, ignorePattern?: string) => {
   try {
     const files = await loadMigrationFiles(dir, ignorePattern)
-    return files.length > 0 ? getSuffixFromFileName(files[files.length - 1]) : undefined
+    return files.length > 0 ? getSuffixFromFileName(files[files.length - 1].name) : undefined
   } catch (err) {
     return undefined
   }

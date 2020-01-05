@@ -27,7 +27,7 @@ const loadMigrations = async (db: DBConnection, options: RunnerOption, logger: L
     return (
       await Promise.all(
         files.map(async (file) => {
-          const filePath = `${options.dir}/${file}`
+          const filePath = `${options.dir}/${file.path}`
           const actions: MigrationBuilderActions =
             path.extname(filePath) === '.sql'
               ? await migrateSqlFile(filePath)
