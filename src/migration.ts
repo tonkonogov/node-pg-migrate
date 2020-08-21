@@ -36,8 +36,8 @@ export const loadMigrationFiles = async (
   const files = _(
     await Promise.all(
       dirContent.map(async file => {
-        const stats = await lstat(`${fullDir}/${file}`)
-        const filePath = subDir ? `${subDir}/${file}` : file
+        const stats = await lstat(`${fullDir}/${file.name}`)
+        const filePath = subDir ? `${subDir}/${file.name}` : file.name
         if (stats.isDirectory()) {
           return loadMigrationFiles(dir, ignorePattern, filePath)
         }

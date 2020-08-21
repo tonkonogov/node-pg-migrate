@@ -115,7 +115,7 @@ describe('lib/migration', () => {
   describe('loadMigrationFiles', () => {
     it('loads all migrations (including subfolders)', () => {
       return loadMigrationFiles('./test/migrations').then(files => {
-        expect(files.length).to.equal(82)
+        expect(files.length).to.equal(84)
       })
     })
   })
