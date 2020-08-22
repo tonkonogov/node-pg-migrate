@@ -287,7 +287,7 @@ function readJson(json) {
     DECAMELIZE = typeof DECAMELIZE !== 'undefined' ? DECAMELIZE : json[decamelizeArg]
     DB_CONNECTION = typeof DB_CONNECTION !== 'undefined' ? DB_CONNECTION : process.env[json[databaseUrlVarArg]]
     tsconfigPath = typeof tsconfigPath !== 'undefined' ? tsconfigPath : json[tsconfigArg]
-    SKIP_META_SAVE = typeof SKIP_META_SAVE !== 'undefined' ? SKIP_META_SAVE : json[skipMetaSaveArg]
+    SKIP_META_SAVE = json[skipMetaSaveArg] || SKIP_META_SAVE
     // ignore json config if there is DB_URL env var
     if (!DB_CONNECTION) {
       if (json.url) {

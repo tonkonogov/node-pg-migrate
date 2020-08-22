@@ -35,13 +35,13 @@ export const loadMigrationFiles = async (
 
   const files = _(
     await Promise.all(
-      dirContent.map(async file => {
+      dirContent.map(async (file) => {
         const stats = await lstat(`${fullDir}/${file.name}`)
         const filePath = subDir ? `${subDir}/${file.name}` : file.name
         if (stats.isDirectory()) {
           return loadMigrationFiles(dir, ignorePattern, filePath)
         }
-        return stats.isFile() ? [{ name: file, path: filePath }] : []
+        return stats.isFile() ? [{ name: file.name, path: filePath }] : []
       }),
     ),
   )
@@ -50,7 +50,7 @@ export const loadMigrationFiles = async (
     .value()
 
   const filter = new RegExp(`^(${ignorePattern})$`) // eslint-disable-line security/detect-non-literal-regexp
-  return ignorePattern === undefined ? files : files.filter(i => !filter.test(i.name))
+  return ignorePattern === undefined ? files : files.filter((i) => !filter.test(i.name))
 }
 
 const getSuffixFromFileName = (fileName: string) => path.extname(fileName).substr(1)
@@ -64,7 +64,7 @@ const getLastSuffix = async (dir: string, ignorePattern?: string) => {
   }
 }
 
-export const getTimestamp = (logger: Logger, filename: string): number => {
+export const getTimestamp = (logger: Logger, filename: string, defIndex: number): number => {
   const prefix = filename.split(SEPARATOR)[0]
   if (prefix && /^\d+$/.test(prefix)) {
     if (prefix.length === 13) {
@@ -83,8 +83,7 @@ export const getTimestamp = (logger: Logger, filename: string): number => {
       return new Date(`${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${ms}Z`).valueOf()
     }
   }
-  logger.error(`Can't determine timestamp for ${prefix}`)
-  return Number(prefix) || 0
+  return defIndex
 }
 
 const resolveSuffix = async (directory: string, { language, ignorePattern }: CreateOptionsDefault) =>
@@ -184,13 +183,14 @@ export class Migration implements RunMigration {
     migrationPath: string,
     { up, down }: MigrationBuilderActions,
     options: RunnerOption,
+    index: number,
     typeShorthands?: ColumnDefinitions,
     logger: Logger = console,
   ) {
     this.db = db
     this.path = migrationPath
     this.name = path.basename(migrationPath, path.extname(migrationPath))
-    this.timestamp = getTimestamp(logger, this.name)
+    this.timestamp = getTimestamp(logger, this.name, index)
     this.up = up
     this.down = down
     this.options = options

@@ -26,7 +26,7 @@ const loadMigrations = async (db: DBConnection, options: RunnerOption, logger: L
     const files = await loadMigrationFiles(options.dir, options.ignorePattern)
     return (
       await Promise.all(
-        files.map(async (file) => {
+        files.map(async (file, index) => {
           const filePath = `${options.dir}/${file.path}`
           const actions: MigrationBuilderActions =
             path.extname(filePath) === '.sql'
@@ -39,6 +39,7 @@ const loadMigrations = async (db: DBConnection, options: RunnerOption, logger: L
             filePath,
             actions,
             options,
+            index,
             {
               ...shorthands,
             },
